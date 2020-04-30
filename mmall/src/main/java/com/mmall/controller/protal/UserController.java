@@ -53,7 +53,7 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "register.do",method = RequestMethod.POST)
+    @RequestMapping(value = "register.do",method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> register(User user){
         return iUserService.register(user);
@@ -65,9 +65,34 @@ public class UserController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "check_valid.do",method = RequestMethod.POST)
+    @RequestMapping(value = "check_valid.do",method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> checkValid(String str , String type){
         return iUserService.checkValid(str,type);
+    }
+
+    @RequestMapping(value = "get_userinfo.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> getCurrentUserInfo(HttpSession session){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user != null){
+            return ServerResponse.createBySuccess(user);
+        }
+        return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户");
+    }
+
+
+    @RequestMapping(value = "foget_get_question.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> fogetGetQuestion(String userName){
+
+        return iUserService.fogetGetQuestion(userName);
+    }
+
+
+    @RequestMapping(value = "foget_check_answer.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> fogetCheckAnswer(String userName ,String question ,String answer){
+        return iUserService.checkAnswer(userName,question,answer);
     }
 }

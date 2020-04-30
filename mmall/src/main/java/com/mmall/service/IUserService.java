@@ -9,4 +9,8 @@ public interface IUserService {
     ServerResponse<String> register(User user);
 
     ServerResponse<String> checkValid(String str , String type);
+
+    ServerResponse<String> fogetGetQuestion(String userName);
+
+    ServerResponse<String> checkAnswer(String userName ,String question ,String answer);
 }

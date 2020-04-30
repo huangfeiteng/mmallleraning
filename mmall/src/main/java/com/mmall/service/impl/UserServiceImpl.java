@@ -2,6 +2,7 @@ package com.mmall.service.impl;
 
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
+import com.mmall.common.TokenCache;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -9,6 +10,8 @@ import com.mmall.util.MD5Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service("iUserService")
 public class UserServiceImpl implements IUserService {
@@ -81,5 +84,32 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("参数错误");
         }
         return ServerResponse.createBySuccessMessage("校验成功");
+    }
+
+    @Override
+    public ServerResponse<String> fogetGetQuestion(String userName) {
+        ServerResponse<String> valisResponse = this.checkValid(userName, Const.USERNAME);
+        if(valisResponse.isSuccess()){
+            //用户名不存在
+            return ServerResponse.createByErrorMessage("用户名不存在");
+        }
+
+        String question = userMapper.selectForgetQuestion(userName);
+        if(StringUtils.isNoneBlank(question)){
+            return ServerResponse.createBySuccessMessage(question);
+        }
+        return ServerResponse.createByErrorMessage("用户提示问题不存在");
+    }
+
+    @Override
+    public ServerResponse<String> checkAnswer(String userName, String question, String answer) {
+        int resultNum = userMapper.checkAnswer(userName, question, answer);
+        if(resultNum > 0){
+            //说明问题及问题是这个用户的 并且正确
+            String fogetToken = UUID.randomUUID().toString();
+            TokenCache.setKey("foget_token"+userName,fogetToken);
+            return ServerResponse.createBySuccessMessage(fogetToken);
+        }
+        return ServerResponse.createByErrorMessage("用户问题的答案错误");
     }
 }

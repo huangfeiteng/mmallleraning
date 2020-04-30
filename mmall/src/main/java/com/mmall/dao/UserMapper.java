@@ -21,4 +21,8 @@ public interface UserMapper {
     int checkEmail(String email);
 
     User selectUsernameAndPassword(@Param("username") String username, @Param("password") String password);
+
+    String selectForgetQuestion(String userName);
+
+    int checkAnswer(String userName,String question,String answer);
 }
