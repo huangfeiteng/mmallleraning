@@ -112,4 +112,66 @@ public class UserServiceImpl implements IUserService {
         }
         return ServerResponse.createByErrorMessage("用户问题的答案错误");
     }
+
+    @Override
+    public ServerResponse<String> fogetResetPassword(String userName, String passwordNew, String token) {
+        if (StringUtils.isBlank(token)){
+            return ServerResponse.createByErrorMessage("参数错误，token为必传参数");
+        }
+        ServerResponse<String> validResponse = this.checkValid(userName, Const.USERNAME);
+        if(validResponse.isSuccess()){
+            //用户名不存在
+            return ServerResponse.createByErrorMessage("用户名不存在");
+        }
+        String fogetToken = TokenCache.getKey("foget_token" + userName);
+        if(StringUtils.isBlank(fogetToken)){
+            return ServerResponse.createByErrorMessage("token已失效或过期");
+        }
+
+        if(StringUtils.equals(token,fogetToken)){
+            String MD5passwordNew = MD5Util.MD5EncodeUtf8(passwordNew);
+           int resultNum =  userMapper.fogetResetPassWord(userName,MD5passwordNew);
+           if(resultNum > 0){
+               return ServerResponse.createBySuccessMessage("修改密码成功");
+           }
+        }else {
+            return ServerResponse.createByErrorMessage("token校验失败，请重新获取密码问题的token");
+        }
+        return ServerResponse.createByErrorMessage("修改密码失败");
+    }
+
+    @Override
+    public ServerResponse<String> resetPassword(User user, String passwordOld, String passwordNew) {
+        int resultNum = userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld),user.getId());
+        if(resultNum == 0){
+            return ServerResponse.createByErrorMessage("旧密码错误");
+        }
+        user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
+        int resultCount = userMapper.updateByPrimaryKeySelective(user);
+        if(resultCount > 0){
+            return ServerResponse.createBySuccessMessage("更新密码成功");
+        }
+        return ServerResponse.createBySuccessMessage("更新密码失败");
+    }
+
+    @Override
+    public ServerResponse<User> updateInformation(User user) {
+        int resultNum = userMapper.checkEmailById(user.getEmail(),user.getId());
+        if(resultNum > 0 ){
+            return ServerResponse.createByErrorMessage("邮箱已经存在，请更换email重新更新");
+        }
+        User updateUser = new User();
+        updateUser.setAnswer(user.getAnswer());
+        updateUser.setEmail(user.getEmail());
+        updateUser.setPhone(user.getPhone());
+        updateUser.setQuestion(user.getQuestion());
+        updateUser.setId(user.getId());
+        int updateCount = userMapper.updateByPrimaryKeySelective(updateUser);
+        if(updateCount > 0 ){
+            return ServerResponse.createBySuccess("更新用户信息成功",updateUser);
+        }
+        return ServerResponse.createByErrorMessage("更新用户信息失败");
+    }
+
+
 }

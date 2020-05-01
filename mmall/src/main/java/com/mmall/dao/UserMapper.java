@@ -24,5 +24,11 @@ public interface UserMapper {
 
     String selectForgetQuestion(String userName);
 
-    int checkAnswer(String userName,String question,String answer);
+    int checkAnswer(@Param("username") String userName,@Param("question") String question,@Param("answer") String answer);
+
+    int fogetResetPassWord(@Param("username") String userName,@Param("passwordNew") String passwordNew);
+
+    int checkPassword(@Param("password") String password,@Param("userId") Integer userId);
+
+    int checkEmailById(@Param("email") String email , @Param("userId") Integer userId);
 }

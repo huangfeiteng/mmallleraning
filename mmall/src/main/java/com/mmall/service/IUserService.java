@@ -13,4 +13,10 @@ public interface IUserService {
     ServerResponse<String> fogetGetQuestion(String userName);
 
     ServerResponse<String> checkAnswer(String userName ,String question ,String answer);
+
+    ServerResponse<String> fogetResetPassword(String userName, String passwordNew, String token);
+
+    ServerResponse<String> resetPassword(User user,String passwordOld,String passwordNew);
+
+    ServerResponse<User> updateInformation(User user);
 }

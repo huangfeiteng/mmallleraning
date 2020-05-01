@@ -95,4 +95,37 @@ public class UserController {
     public ServerResponse<String> fogetCheckAnswer(String userName ,String question ,String answer){
         return iUserService.checkAnswer(userName,question,answer);
     }
+
+    @RequestMapping(value = "foget_reset_password.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> fogetResetPassword(String userName,String passwordNew,String token){
+        return iUserService.fogetResetPassword(userName,passwordNew,token) ;
+    }
+
+    @RequestMapping(value = "reset_password.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> resetPassword(HttpSession session,String passwordOld,String passwordNew){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if(user == null){
+            return  ServerResponse.createByErrorMessage("用户未登录");
+        }
+        return iUserService.resetPassword(user,passwordOld,passwordNew);
+    }
+
+    @RequestMapping(value = "update_information.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> updateInformation(HttpSession session ,User user){
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if(currentUser == null){
+            return  ServerResponse.createByErrorMessage("用户未登录");
+        }
+        user.setId(currentUser.getId());
+        user.setUsername(currentUser.getUsername());
+        ServerResponse<User> userServerResponse = iUserService.updateInformation(user);
+        if(userServerResponse.isSuccess()){
+            session.setAttribute(Const.CURRENT_USER,userServerResponse.getData());
+        }
+
+        return userServerResponse;
+    }
 }
