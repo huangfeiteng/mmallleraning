@@ -1,6 +1,7 @@
 package com.mmall.controller.protal;
 
 import com.mmall.common.Const;
+import com.mmall.common.ResponseCode;
 import com.mmall.common.ServerResponse;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -41,7 +42,7 @@ public class UserController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "logout.do" , method = RequestMethod.GET)
+    @RequestMapping(value = "logout.do" , method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> logout(HttpSession session){
         session.removeAttribute(Const.CURRENT_USER);
@@ -53,7 +54,7 @@ public class UserController {
      * @param user
      * @return
      */
-    @RequestMapping(value = "register.do",method = RequestMethod.GET)
+    @RequestMapping(value = "register.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> register(User user){
         return iUserService.register(user);
@@ -65,13 +66,13 @@ public class UserController {
      * @param type
      * @return
      */
-    @RequestMapping(value = "check_valid.do",method = RequestMethod.GET)
+    @RequestMapping(value = "check_valid.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> checkValid(String str , String type){
         return iUserService.checkValid(str,type);
     }
 
-    @RequestMapping(value = "get_userinfo.do",method = RequestMethod.GET)
+    @RequestMapping(value = "get_userinfo.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> getCurrentUserInfo(HttpSession session){
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -82,7 +83,7 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "foget_get_question.do",method = RequestMethod.GET)
+    @RequestMapping(value = "foget_get_question.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> fogetGetQuestion(String userName){
 
@@ -90,19 +91,19 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "foget_check_answer.do",method = RequestMethod.GET)
+    @RequestMapping(value = "foget_check_answer.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> fogetCheckAnswer(String userName ,String question ,String answer){
         return iUserService.checkAnswer(userName,question,answer);
     }
 
-    @RequestMapping(value = "foget_reset_password.do",method = RequestMethod.GET)
+    @RequestMapping(value = "foget_reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> fogetResetPassword(String userName,String passwordNew,String token){
         return iUserService.fogetResetPassword(userName,passwordNew,token) ;
     }
 
-    @RequestMapping(value = "reset_password.do",method = RequestMethod.GET)
+    @RequestMapping(value = "reset_password.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> resetPassword(HttpSession session,String passwordOld,String passwordNew){
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -112,7 +113,7 @@ public class UserController {
         return iUserService.resetPassword(user,passwordOld,passwordNew);
     }
 
-    @RequestMapping(value = "update_information.do",method = RequestMethod.GET)
+    @RequestMapping(value = "update_information.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> updateInformation(HttpSession session ,User user){
         User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
@@ -127,5 +128,16 @@ public class UserController {
         }
 
         return userServerResponse;
+    }
+
+
+    @RequestMapping(value = "get_information.do",method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<User> getInformation(HttpSession session){
+        User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+        if(currentUser == null){
+            return  ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"需要登录，状态status为10");
+        }
+        return iUserService.getInformation(currentUser.getId());
     }
 }

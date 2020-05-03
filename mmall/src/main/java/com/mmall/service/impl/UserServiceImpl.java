@@ -28,7 +28,7 @@ public class UserServiceImpl implements IUserService {
 
         //md5加密
         String md5Password = MD5Util.MD5EncodeUtf8(password);
-        User user = userMapper.selectUsernameAndPassword(username, password);
+        User user = userMapper.selectUsernameAndPassword(username, md5Password);
         if(user == null){
             return ServerResponse.createByErrorMessage("密码有误，请核实");
         }
@@ -45,7 +45,7 @@ public class UserServiceImpl implements IUserService {
             return validUsernameResponse;
         }
         //校验邮箱
-        ServerResponse<String> validEmailResponse = this.checkValid(user.getUsername(), Const.EMAIL);
+        ServerResponse<String> validEmailResponse = this.checkValid(user.getEmail(), Const.EMAIL);
         if (!validEmailResponse.isSuccess()){
             return validEmailResponse;
         }
@@ -171,6 +171,15 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createBySuccess("更新用户信息成功",updateUser);
         }
         return ServerResponse.createByErrorMessage("更新用户信息失败");
+    }
+
+    @Override
+    public ServerResponse<User> getInformation(Integer userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if(user == null){
+            return ServerResponse.createByErrorMessage("用户不存在");
+        }
+        return ServerResponse.createBySuccess(user);
     }
 
 
