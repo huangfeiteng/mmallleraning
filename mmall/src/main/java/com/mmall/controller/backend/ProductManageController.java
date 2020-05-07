@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
@@ -60,6 +61,37 @@ public class ProductManageController {
         }
     }
 
+
+    @RequestMapping(value = "detail.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse getDetail(HttpSession session, Integer productId){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"请先进行登录");
+        }
+        if(iUserService.checkAdminRole(user).isSuccess()){
+
+            return iProductService.manageProductDetail(productId);
+
+        }else {
+            return ServerResponse.createByErrorMessage("没有权限操作");
+        }
+    }
+
+
+    @RequestMapping(value = "list.do",method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse getList(HttpSession session, @RequestParam(value = "pageNum",defaultValue = "1") int pageNum , @RequestParam(value = "pageSize",defaultValue = "10") int pageSize ){
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(),"请先进行登录");
+        }
+        if(iUserService.checkAdminRole(user).isSuccess()){
+            return iProductService.getProductList(pageNum,pageSize);
+        }else {
+            return ServerResponse.createByErrorMessage("没有权限操作");
+        }
+    }
 
 
 }
